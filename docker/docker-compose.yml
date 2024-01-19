@@ -1,0 +1,38 @@
+version: "3"
+
+volumes:
+  php_socket:
+  data:
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./docker/php.Dockerfile
+    volumes:
+      - php_socket:/var/run/php-fpm
+  web:
+    build:
+      context: ../
+      dockerfile: ./docker/nginx.Dockerfile
+    volumes:
+      - php_socket:/var/run/php-fpm
+    ports:
+      - "8081:80"
+    depends_on:
+      - app
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - data:/var/lib/mysql
+      - ./infra/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - 3306:3306
