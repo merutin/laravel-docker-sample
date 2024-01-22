@@ -10,12 +10,15 @@ services:
       dockerfile: ./docker/php.Dockerfile
     volumes:
       - php_socket:/var/run/php-fpm
+      - ./conf/zzz-docker.conf:/usr/local/etc/php-fpm.d/zzz-docker.conf
+      - ./conf/php.ini:/usr/local/etc/php/php.ini
   web:
     build:
       context: ../
       dockerfile: ./docker/nginx.Dockerfile
     volumes:
       - php_socket:/var/run/php-fpm
+      - ./conf/server.conf:/etc/nginx/nginx.conf
     ports:
       - "8081:80"
     depends_on:
